@@ -17,7 +17,7 @@ export default function DebugPage() {
     const testCreateTransaction = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://arwaeduc.digima.cloud';
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://arwaeduc.enovazoneacadimeca.com';
             const url = `${baseUrl.endsWith('/api') ? baseUrl : baseUrl + '/api'}/transactions`;
             addLog(`Sending POST to ${url}`);
 

@@ -3,7 +3,7 @@ import axios from "axios";
 import { getAccessToken, setAccessToken, clearTokens } from "../store/useAuthStore";
 
 const getBaseUrl = () => {
-    let url = (process.env.NEXT_PUBLIC_API_URL || "https://arwaeduc.digima.cloud").replace(/\/$/, '');
+    let url = (process.env.NEXT_PUBLIC_API_URL || "https://arwaeduc.enovazoneacadimeca.com").replace(/\/$/, '');
     // Ensure we call the backend's /api prefix when talking directly to the API server
     if (!url.endsWith('/api')) url = `${url}/api`;
     return url;

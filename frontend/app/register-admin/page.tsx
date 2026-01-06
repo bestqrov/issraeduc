@@ -17,7 +17,7 @@ export default function RegisterAdmin() {
         setError(null);
         if (password !== confirm) return setError('Passwords do not match');
         try {
-            let API_URL = process.env.NEXT_PUBLIC_API_URL || "https://arwaeduc.digima.cloud";
+            let API_URL = process.env.NEXT_PUBLIC_API_URL || "https://arwaeduc.enovazoneacadimeca.com";
             if (!API_URL.endsWith('/api')) API_URL = `${API_URL.replace(/\/$/, '')}/api`;
             const res = await fetch(`${API_URL}/auth/register-admin`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },

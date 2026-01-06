@@ -3,10 +3,9 @@ import axios from "axios";
 import { getAccessToken, setAccessToken, clearTokens } from "../store/useAuthStore";
 
 const getBaseUrl = () => {
-    let url = (process.env.NEXT_PUBLIC_API_URL || "https://arwaeduc.enovazoneacadimeca.com").replace(/\/$/, '');
-    // Ensure we call the backend's /api prefix when talking directly to the API server
-    if (!url.endsWith('/api')) url = `${url}/api`;
-    return url;
+    // Use relative URL since frontend and backend are on the same server
+    // This will work regardless of the domain the app is deployed on
+    return '/api';
 };
 
 const api = axios.create({ baseURL: getBaseUrl() });

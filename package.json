@@ -1,18 +1,16 @@
 {
-  "name": "ArwaEduc school-management",
+  "name": "arwaeduc-school-management",
   "version": "1.0.0",
-  "description": "ArwaEduc School Management System Backend with Node.js, Express, Prisma, and PostgreSQL",
+  "private": true,
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc && cd frontend && npm install && npm run build",
     "start": "node dist/server.js",
-    "start:prod": "npm run start",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
-    "prisma:studio": "prisma studio",
-    "prisma:seed": "ts-node prisma/seed.ts"
-  },
+    "prisma:migrate": "prisma migrate deploy"
+  }
+
   "keywords": [
     "school",
     "management",

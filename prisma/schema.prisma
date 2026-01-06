@@ -1,0 +1,253 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SECRETARY
+  SUPER_ADMIN
+}
+
+enum InscriptionType {
+  SOUTIEN
+  FORMATION
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  role          UserRole
+  name          String
+  avatar        String?  // Base64 encoded image or URL
+  gsm           String?
+  whatsapp      String?
+  address       String?
+  schoolLevel   String?
+  certification String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Student {
+  id            String    @id @default(uuid())
+  name          String
+  surname       String
+  phone         String?
+  email         String?
+  cin           String?
+  address       String?
+  birthDate     DateTime?
+  birthPlace    String?
+  fatherName    String?
+  motherName    String?
+  parentName    String?
+  parentPhone   String?
+  parentRelation String?
+  schoolLevel   String?
+  currentSchool String?
+  subjects      Json?
+  photo         String? // Base64 encoded image or file path
+  studentLink   String? @unique // Unique link for student dashboard access
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  inscriptions Inscription[]
+  payments     Payment[]
+  attendances  Attendance[]
+  
+  parentId     String?
+  parent       Parent?   @relation(fields: [parentId], references: [id])
+
+  groupIds     String[]
+  groups       Group[]  @relation("GroupStudents")
+
+  @@map("students")
+}
+
+model Group {
+  id            String   @id @default(uuid())
+  name          String
+  type          InscriptionType @default(SOUTIEN) 
+  
+  // Soutien fields
+  level         String? // e.g. LYCEE
+  subject       String? // e.g. MATHS
+
+  // Formation fields
+  formationId   String?
+  formation     Formation? @relation(fields: [formationId], references: [id])
+
+  room          String?
+  whatsappUrl   String?
+  
+  teacherId     String?
+  teacher       Teacher? @relation(fields: [teacherId], references: [id])
+  
+  studentIds    String[]
+  students      Student[] @relation("GroupStudents")
+  
+  timeSlots     Json? // [{ day: string, startTime: string, endTime: string }]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("groups")
+}
+
+model Teacher {
+  id            String   @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  cin           String?
+  dob           DateTime?
+  gender        String?
+  picture       String?
+  status        String   @default("Active")
+  socialMedia   Json?    // { linkedin, twitter, facebook, whatsapp }
+  
+  hourlyRate    Float    @default(0)
+  paymentType   String   @default("HOURLY") // HOURLY, FIXED, PERCENTAGE
+  commission    Float?   // For percentage based payment
+  
+  specialties   String[] // Subjects
+  levels        String[] // Levels
+
+  groups        Group[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  teacherLink   String?  @unique
+
+  @@map("teachers")
+}
+
+model Inscription {
+  id        String          @id @default(uuid())
+  studentId String
+  student   Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type      InscriptionType
+  category  String
+  amount    Float
+  date      DateTime        @default(now())
+  note      String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@map("inscriptions")
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amount    Float
+  method    String
+  credit    Float    @default(0) // Credit amount applied
+  note      String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payments")
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      DateTime
+  status    String // present / absent
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("attendances")
+}
+
+model Settings {
+  id           String   @id @default(uuid())
+  schoolName   String
+  logo         String?
+  academicYear String
+  contactInfo  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Parent {
+  id            String    @id @default(uuid())
+  name          String
+  phone         String    @unique
+  email         String?
+  whatsapp      String?
+  address       String?
+  cin           String?
+  parentLink    String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  students      Student[]
+
+  @@map("parents")
+}
+
+model Formation {
+  id          String   @id @default(uuid())
+  name        String
+  duration    String
+  price       Float
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  groups      Group[]
+
+  @@map("formations")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+
+model Transaction {
+  id          String          @id @default(uuid())
+  type        TransactionType
+  amount      Float
+  category    String
+  description String?
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("transactions")
+}
+
+model Pricing {
+  id          String   @id @default(uuid())
+  category    String   // SOUTIEN, FORMATION
+  level       String   // LYCÉE, COLLÈGE, etc.
+  subject     String   // MATHS, PHYSIQUE, etc.
+  price       Float    @default(0)
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("pricing")
+}

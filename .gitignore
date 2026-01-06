@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+# package-lock.json (Removed from ignore to allow tracking)
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug_output.txt
+error_log.txt
+output.log
+output_debug_2.log
+push_log.txt
+seed_debug.log
+start_log.txt
+start_log_pg.txt
+build_output.txt
+dev_output.txt
+debug.json
+debug_v2.json
+debug_output_full.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations/

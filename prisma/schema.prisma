@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -22,12 +22,12 @@ enum InscriptionType {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   email         String   @unique
   password      String
   role          UserRole
   name          String
-  avatar        String?  // Base64 encoded image or URL
+  avatar        String?
   gsm           String?
   whatsapp      String?
   address       String?
@@ -40,7 +40,7 @@ model User {
 }
 
 model Student {
-  id            String    @id @default(uuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   surname       String
   phone         String?
@@ -57,8 +57,8 @@ model Student {
   schoolLevel   String?
   currentSchool String?
   subjects      Json?
-  photo         String? // Base64 encoded image or file path
-  studentLink   String? @unique // Unique link for student dashboard access
+  photo         String?
+  studentLink   String? @unique
   active        Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -67,38 +67,36 @@ model Student {
   payments     Payment[]
   attendances  Attendance[]
   
-  parentId     String?
+  parentId     String?   @db.ObjectId
   parent       Parent?   @relation(fields: [parentId], references: [id])
 
-  groupIds     String[]
-  groups       Group[]  @relation("GroupStudents")
+  groupIds     String[]  @db.ObjectId
+  groups       Group[]   @relation(fields: [groupIds], references: [id])
 
   @@map("students")
 }
 
 model Group {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   type          InscriptionType @default(SOUTIEN) 
   
-  // Soutien fields
-  level         String? // e.g. LYCEE
-  subject       String? // e.g. MATHS
+  level         String?
+  subject       String?
 
-  // Formation fields
-  formationId   String?
+  formationId   String?  @db.ObjectId
   formation     Formation? @relation(fields: [formationId], references: [id])
 
   room          String?
   whatsappUrl   String?
   
-  teacherId     String?
+  teacherId     String?  @db.ObjectId
   teacher       Teacher? @relation(fields: [teacherId], references: [id])
   
-  studentIds    String[]
-  students      Student[] @relation("GroupStudents")
+  studentIds    String[] @db.ObjectId
+  students      Student[] @relation(fields: [studentIds], references: [id])
   
-  timeSlots     Json? // [{ day: string, startTime: string, endTime: string }]
+  timeSlots     Json?
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -107,7 +105,7 @@ model Group {
 }
 
 model Teacher {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   email         String?
   phone         String?
@@ -116,14 +114,14 @@ model Teacher {
   gender        String?
   picture       String?
   status        String   @default("Active")
-  socialMedia   Json?    // { linkedin, twitter, facebook, whatsapp }
+  socialMedia   Json?
   
   hourlyRate    Float    @default(0)
-  paymentType   String   @default("HOURLY") // HOURLY, FIXED, PERCENTAGE
-  commission    Float?   // For percentage based payment
+  paymentType   String   @default("HOURLY")
+  commission    Float?
   
-  specialties   String[] // Subjects
-  levels        String[] // Levels
+  specialties   String[]
+  levels        String[]
 
   groups        Group[]
 
@@ -135,8 +133,8 @@ model Teacher {
 }
 
 model Inscription {
-  id        String          @id @default(uuid())
-  studentId String
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String          @db.ObjectId
   student   Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
   type      InscriptionType
   category  String
@@ -150,12 +148,12 @@ model Inscription {
 }
 
 model Payment {
-  id        String   @id @default(uuid())
-  studentId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String   @db.ObjectId
   student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   amount    Float
   method    String
-  credit    Float    @default(0) // Credit amount applied
+  credit    Float    @default(0)
   note      String?
   date      DateTime @default(now())
   createdAt DateTime @default(now())
@@ -165,11 +163,11 @@ model Payment {
 }
 
 model Attendance {
-  id        String   @id @default(uuid())
-  studentId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String   @db.ObjectId
   student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   date      DateTime
-  status    String // present / absent
+  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -177,7 +175,7 @@ model Attendance {
 }
 
 model Settings {
-  id           String   @id @default(uuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   schoolName   String
   logo         String?
   academicYear String
@@ -189,7 +187,7 @@ model Settings {
 }
 
 model Parent {
-  id            String    @id @default(uuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   phone         String    @unique
   email         String?
@@ -206,7 +204,7 @@ model Parent {
 }
 
 model Formation {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   duration    String
   price       Float
@@ -226,7 +224,7 @@ enum TransactionType {
 
 
 model Transaction {
-  id          String          @id @default(uuid())
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
   type        TransactionType
   amount      Float
   category    String
@@ -239,10 +237,10 @@ model Transaction {
 }
 
 model Pricing {
-  id          String   @id @default(uuid())
-  category    String   // SOUTIEN, FORMATION
-  level       String   // LYCÉE, COLLÈGE, etc.
-  subject     String   // MATHS, PHYSIQUE, etc.
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  category    String
+  level       String
+  subject     String
   price       Float    @default(0)
   description String?
   active      Boolean  @default(true)

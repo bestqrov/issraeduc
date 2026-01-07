@@ -9,7 +9,7 @@ const nextConfig = {
     },
     images: {
         unoptimized: true,
-        domains: ['localhost', 'arwaeduc.enovazoneacadimeca.com'],
+        domains: ['localhost'],
     },
 }
 

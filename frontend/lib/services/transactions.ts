@@ -1,11 +1,7 @@
 import { getAccessToken } from '@/store/useAuthStore';
 
 const getBaseUrl = () => {
-    let url = process.env.NEXT_PUBLIC_API_URL || 'https://arwaeduc.enovazoneacadimeca.com';
-    if (!url.endsWith('/api')) {
-        url = url.endsWith('/') ? `${url}api` : `${url}/api`;
-    }
-    return url;
+    return '/api';
 };
 
 const API_BASE_URL = getBaseUrl();

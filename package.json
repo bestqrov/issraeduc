@@ -17,7 +17,7 @@
     "backend",
     "express",
     "prisma",
-    "postgresql"
+    "mongodb"
   ],
   "author": "",
   "license": "ISC",

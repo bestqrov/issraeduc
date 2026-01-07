@@ -11,6 +11,16 @@ const nextConfig = {
         unoptimized: true,
         domains: ['localhost'],
     },
+    async rewrites() {
+        // Use BACKEND_URL for the proxy target, or default to localhost:3000
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+        return [
+            {
+                source: '/api/:path*',
+                destination: `${backendUrl.replace(/\/$/, '')}/api/:path*`,
+            },
+        ];
+    },
 }
 
 module.exports = nextConfig
